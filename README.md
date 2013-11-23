@@ -15,7 +15,15 @@ The directory containing ebook-convert.exe (e.g. C:\Program Files (x86)\Calibre2
 Usage:
 To start the server, just run createabook.py
 The Create A Book form should then be visible at http://localhost:5000/
-If you want the server to be externally visible, change EXTERNALY_VISIBLE_SERVER to True.
+
+Configuration:
+There are several variables in createabook.py which can be configured to you liking.
+
+EXTERNALY_VISIBLE_SERVER - Controls whether the server is externally visible. 
+There is logic to automatically disable Flask debug mode if this flag is set to True for security reasons.
+
+I reccommend that you set FROM_EMAIL, SMTP_SERVER, SMTP_USERNAME, and SMTP_PASSWORD in the script,
+but if you leave them set to empty, then it will show form fields for these items. 
 
 Gotchas:
 The from email must be in your Amazon Kindle "Approved Personal Document E-mail List"
