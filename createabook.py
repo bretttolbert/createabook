@@ -183,14 +183,17 @@ def convert_to_mobi(filename):
     expects 'ebook-convert.exe' directory to be in your system path
     e.g. C:\Program Files (x86)\Calibre2
     """
-    mobi_filename = os.path.splitext(filename)[0] + '.mobi'
-    cmd = 'ebook-convert.exe'
-    args = [filename, mobi_filename]
-    logging.debug('cmd: {0}'.format(cmd))
-    logging.debug('args: {0}'.format(repr(args)))
-    output = subprocess.Popen([cmd] + args, stdout=subprocess.PIPE).communicate()[0]
-    logging.debug('output:\r\n{0}'.format(output))
-    return mobi_filename
+    if os.path.isfile(filename):
+        mobi_filename = os.path.splitext(filename)[0] + '.mobi'
+        cmd = 'ebook-convert.exe'
+        args = [filename, mobi_filename]
+        logging.debug('cmd: {0}'.format(cmd))
+        logging.debug('args: {0}'.format(repr(args)))
+        output = subprocess.Popen([cmd] + args, stdout=subprocess.PIPE).communicate()[0]
+        logging.debug('output:\r\n{0}'.format(output))
+        return mobi_filename
+    else:
+        return False
     
 def email_ebook(filename, from_email, to_addr, subject, smtp_server, smtp_username, smtp_password):
     """Email an ebook file to a given address using the specified SMTP server

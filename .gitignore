@@ -11,6 +11,7 @@
 *.odf
 *.zim
 
-# Sandbox
+# Misc
 ##############
 sandbox.py
+*.png
