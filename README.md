@@ -26,7 +26,7 @@ To start the server, just run createabook.py
 The Create A Book form should then be visible at http://localhost:5000/
 
 Configuration:
-There are several variables in createabook.py which can be configured to you liking.
+There are several variables in createabook.py which can be configured to your liking.
 
 EXTERNALY_VISIBLE_SERVER - Controls whether the server is externally visible. 
 There is logic to automatically disable Flask debug mode if this flag is set to True for security reasons.
