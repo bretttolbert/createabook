@@ -4,18 +4,11 @@ createabook
 Automation of WikiMedia Book Creator Feature, Calibre EPUB to MOBI conversion, and email to Kindle
 
 Dependencies:
-Python 2.7.x
-    http://www.python.org/getit/
-selenium
-    http://www.seleniumhq.org/
-    pip install selenium
-flask
-    http://flask.pocoo.org/docs/installation/
-    pip install Flask
-ebook-covert.exe (included with Calibre)
-    http://calibre-ebook.com/download
-    The directory containing ebook-convert.exe (e.g. C:\Program Files (x86)\Calibre2) must
-    be added to your system path. how to: http://www.computerhope.com/issues/ch000549.htm
+* Python 2.7.X - http://www.python.org/getit/
+* selenium - http://www.seleniumhq.org/ pip install selenium
+* flask http://flask.pocoo.org/docs/installation/ pip install Flask
+* ebook-covert.exe (included with Calibre) http://calibre-ebook.com/download 
+The directory containing ebook-convert.exe (e.g. C:\Program Files (x86)\Calibre2) must be added to your system path. how to: http://www.computerhope.com/issues/ch000549.htm
 
 Usage:
 To start the server, just run createabook.py
