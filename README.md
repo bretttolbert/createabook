@@ -3,6 +3,8 @@ createabook
 
 Automation of WikiMedia Book Creator Feature, Calibre EPUB to MOBI conversion, and email to Kindle
 
+Screenshot: http://i.imgur.com/fwj3kZQ.png
+
 Dependencies:
 * Python 2.7.X - http://www.python.org/getit/
 * selenium - http://www.seleniumhq.org/ pip install selenium
