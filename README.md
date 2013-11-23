@@ -7,8 +7,11 @@ Written in Python and uses the Selenium web browser automation library and the F
 It uses the Calibre ebook-covert utility to do the conversion.
 
 Screenshot: http://i.imgur.com/fwj3kZQ.png
+
 Blog post: http://www.bretttolbert.com/2013/11/23/createabook-py-web-app-to-automate-wikipedias-book-creator-feature-download-convert-from-epub-to-mobi-and-email-to-kindle/
+
 Reddit: http://www.reddit.com/r/kindle/comments/1radef/web_app_to_automate_wikipedias_book_creator/
+
 Please share!
 
 Dependencies:
