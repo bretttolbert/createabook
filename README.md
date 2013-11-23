@@ -3,6 +3,9 @@ createabook
 
 Automation of WikiMedia Book Creator Feature, Calibre EPUB to MOBI conversion, and email to Kindle
 
+Written in Python and uses the Selenium web browser automation library and the Flask microframework. 
+It uses the Calibre ebook-covert utility to do the conversion.
+
 Screenshot: http://i.imgur.com/fwj3kZQ.png
 
 Dependencies:
