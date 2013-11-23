@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+{% block body %}
+<form action="{{ url_for('wiki_to_kindle_handler') }}" method="post" class="create-a-book">
+  <dl>
+    <dt>WikiMedia Article URL:</dt>
+    <dd><input type="text" size="30" name="article_url" /></dd>
+    <dt>Book Title:</dt>
+    <dd><input type="text" size="30" name="book_title" /></dd>
+    <dt>Book Subtitle (optional):</dt>
+    <dd><input type="text" size="30" name="book_subtitle" /></dd>
+    <dt>Kindle Email:</dt>
+    <dd><input type="text" size="30" name="kindle_email" /></dd>
+    
+    {% if form_field_from_email %}
+    <dt>From Email:</dt>
+    <dd><input type="text" size="30" name="from_email" /></dd>
+    {% endif %}
+    
+    {% if form_field_smtp_server %}
+    <dt>SMTP Server:</dt>
+    <dd><input type="text" size="30" name="smtp_server" value="smtp.gmail.com:587" /></dd>
+    {% endif %}
+    
+    {% if form_field_smtp_username %}
+    <dt>SMTP Username:</dt>
+    <dd><input type="text" size="30" name="smtp_username" /></dd>
+    {% endif %}
+    
+    {% if form_field_smtp_password %}
+    <dt>SMTP Password:</dt>
+    <dd><input type="password" size="30" name="smtp_password" /></dd>
+    {% endif %}
+    
+    <dd><input type="submit" value="Submit"></dd>
+  </dl>
+</form>
+{% endblock %}

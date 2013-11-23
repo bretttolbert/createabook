@@ -1,0 +1,16 @@
+# Logs       
+##############
+*.log
+
+# Ebooks
+##############
+*.epub
+*.mobi
+*.pdf
+*.awz
+*.odf
+*.zim
+
+# Sandbox
+##############
+sandbox.py
