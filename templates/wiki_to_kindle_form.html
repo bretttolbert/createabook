@@ -2,13 +2,19 @@
 {% block body %}
 <form action="{{ url_for('wiki_to_kindle_handler') }}" method="post" class="create-a-book">
   <dl>
-    <dt>WikiMedia Article URL:</dt>
-    <dd><input type="text" size="30" name="article_url" /></dd>
+    <dt>WikiMedia Article URL(s) (one URL per line):</dt>
+    <dd><textarea cols="50" rows="5" name="article_urls" /></textarea></dd>
+    
     <dt>Book Title:</dt>
     <dd><input type="text" size="30" name="book_title" /></dd>
+    
     <dt>Book Subtitle (optional):</dt>
     <dd><input type="text" size="30" name="book_subtitle" /></dd>
-    <dt>Kindle Email:</dt>
+    
+    <dt>Convert to MOBI format</dt>
+    <dd><input type="checkbox" name="convert_to_mobi" checked="checked" value="{{ true }}"></input></dd>
+    
+    <dt>Destination Email Address (e.g. mykindle@amazon.com):</dt>
     <dd><input type="text" size="30" name="kindle_email" /></dd>
     
     {% if form_field_from_email %}

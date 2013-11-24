@@ -24,6 +24,7 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash
 
 app = Flask(__name__)
+logging.basicConfig(filename='createabook.log',level=logging.DEBUG)
 
 KINDLE_EMAIL = ''   # Kindle email address (e.g. 'mykindle@amazon.com')
 FROM_EMAIL = ''     # This email must be in your Amazon Kindle approved sender list
@@ -56,9 +57,12 @@ def wiki_to_kindle_form():
 def wiki_to_kindle_handler():
     """Handler for wiki_to_kindle form
     """
-    article_url = request.form['article_url']
+    article_urls = request.form['article_urls'].splitlines()
+    logging.debug('article_urls: {0}'.format(repr(article_urls)))
     book_title = request.form['book_title']
     book_subtitle = request.form['book_subtitle']
+    convert_to_mobi = 'convert_to_mobi' in request.form
+    logging.debug('convert_to_mobi: {0}'.format(convert_to_mobi))
     
     kindle_email = KINDLE_EMAIL
     if 'kindle_email' in request.form:
@@ -84,30 +88,41 @@ def wiki_to_kindle_handler():
     and 'smtp_password' in request.form:
         smtp_password = request.form['smtp_password']
         
-    wiki_to_kindle(article_url, book_title, book_subtitle, \
-        kindle_email, from_email, smtp_server, smtp_username, smtp_password)
+    wiki_to_kindle(article_urls, book_title, book_subtitle, \
+        kindle_email, from_email, smtp_server, smtp_username, smtp_password, \
+        convert_to_mobi)
     flash('Done.')
     return redirect(url_for('wiki_to_kindle_form'))
 
-logging.basicConfig(filename='createabook.log',level=logging.DEBUG)
-#logging.getLogger().addHandler(logging.StreamHandler()) # print to stderr as well
-
-def create_a_book(article_url, book_title, book_subtitle="", book_fmt="epub"):
+def create_a_book(article_urls, book_title, book_subtitle="", book_fmt="epub"):
     """Create and download and ebook version of the specified WikiMedia article
-    article_url = Complete wikipedia article URL
-    book_title = Desired book title (is also used for output filename)
-    book_subtitle = Desired book subtitle (optional)
-    book_fmt = "epub" | "pdf" | "odf" | "zim"
-        epub = e-book (EPUB)
-        pdf = e-book (PDF)
-        odf = traitement de texte (OpenDocument)
-        zim = Kiwix (OpenZIM)
-    return: local_filename
-    Limitations: Eventually, support will be added for multiple articles per book
-    however you cannot mix articles from different language Wikipedias, i.e. 
-    cannot put an en.wikipedia.org article and an fr.wikipedia.org article in 
-    the same book.
+    
+    Limitations: 
+        Eventually, support will be added for multiple articles per book
+        however you cannot mix articles from different language Wikipedias, i.e. 
+        cannot put an en.wikipedia.org article and an fr.wikipedia.org article in 
+        the same book.
+        
+    Args:
+        article_urls [list of str]
+            Complete wikipedia article URLs
+        book_title [str]
+            Desired book title (is also used for output filename)
+        book_subtitle [str]
+            Desired book subtitle (optional)
+        book_fmt [str]
+            "epub" (default) = e-book (EPUB)
+            "pdf" = e-book (PDF)
+            "odf" = traitement de texte (OpenDocument)
+            "zim" = Kiwix (OpenZIM)
+    Returns:
+        local_filename [str]
+            Local filename of the downloaded ebook file
     """
+    if len(article_urls) == 0:
+        logging.error('create_a_book: article_urls is empty, nothing to do')
+        return
+    article_url = article_urls.pop(0)
     wiki = urlparse(article_url).netloc # e.g. "fr.wikipedia.org"
     logging.debug('wiki: {0}'.format(wiki))
     driver = webdriver.Firefox()
@@ -134,6 +149,13 @@ def create_a_book(article_url, book_title, book_subtitle="", book_fmt="epub"):
 
     a = driver.find_element_by_id("coll-add_article")
     a.click() # cliquer "Ajouter cette page à votre livre"
+    
+    # Add the rest of the articles to the book
+    while len(article_urls):
+        article_url = article_urls.pop(0)
+        driver.get(article_url)
+        a = driver.find_element_by_id("coll-add_article")
+        a.click() # cliquer "Ajouter cette page à votre livre"
 
     # click "Show book (1 page)" (seems to work for any lang wikipedia)
     driver.get("http://" + wiki + "/wiki/Special:Book")
@@ -178,7 +200,7 @@ def create_a_book(article_url, book_title, book_subtitle="", book_fmt="epub"):
     driver.close()
     return filename
     
-def convert_to_mobi(filename):
+def convert_x_to_mobi(filename):
     """Convert EPUB (or other) to MOBI
     expects 'ebook-convert.exe' directory to be in your system path
     e.g. C:\Program Files (x86)\Calibre2
@@ -215,16 +237,27 @@ def email_ebook(filename, from_email, to_addr, subject, smtp_server, smtp_userna
     smtp.sendmail(from_email, to_addr, mroot.as_string())
     smtp.quit()
     
-def wiki_to_kindle(article_url, book_title, book_subtitle, kindle_email, from_email, smtp_server, smtp_username, smtp_password):
+def wiki_to_kindle(article_urls, book_title, book_subtitle, \
+    kindle_email, from_email, smtp_server, smtp_username, smtp_password, \
+    convert_to_mobi=True):
     """Create and download and ebook version of the specified WikiMedia article,
     covert it from EPUB to MOBI format, and email it directly to a kindle.
+    
+    Args:
+        convert_to_mobi
+            Convert ebook to MOBI format (Kindle does not support EPUB)
+    Returns:
+    Raises:
     """
-    epub_filename = create_a_book(article_url, book_title, book_subtitle)
-    mobi_filename = convert_to_mobi(epub_filename)
+    epub_filename = create_a_book(article_urls, book_title, book_subtitle)
+    email_filename = epub_filename
+    if convert_to_mobi:
+        email_filename = convert_x_to_mobi(epub_filename)
     email_subject = book_title
     if len(book_subtitle):
         email_subject += u' - {0}'.format(book_subtitle)
-    email_ebook(mobi_filename, from_email, kindle_email, email_subject, smtp_server, smtp_username, smtp_password)
+    email_ebook(email_filename, from_email, kindle_email, email_subject, \
+                smtp_server, smtp_username, smtp_password)
     
 if __name__ == '__main__':
     # Start the Flask server
