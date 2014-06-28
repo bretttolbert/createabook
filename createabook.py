@@ -13,6 +13,7 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium import common
 from selenium.webdriver.support.ui import Select
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 import smtplib
 from email.MIMEMultipart import MIMEMultipart
@@ -23,6 +24,9 @@ from email.encoders import encode_base64
 from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash
 
+class WebDrivers:
+    Firefox, RemoteChrome = range(2)
+    
 app = Flask(__name__)
 logging.basicConfig(filename='createabook.log',level=logging.DEBUG)
 
@@ -94,7 +98,8 @@ def wiki_to_kindle_handler():
     flash('Done.')
     return redirect(url_for('wiki_to_kindle_form'))
 
-def create_a_book(article_urls, book_title, book_subtitle="", book_fmt="epub"):
+def create_a_book(article_urls, book_title, book_subtitle="", book_fmt="epub", \
+    webdriverType=WebDrivers.Firefox):
     """Create and download and ebook version of the specified WikiMedia article
     
     Limitations: 
@@ -115,6 +120,9 @@ def create_a_book(article_urls, book_title, book_subtitle="", book_fmt="epub"):
             "pdf" = e-book (PDF)
             "odf" = traitement de texte (OpenDocument)
             "zim" = Kiwix (OpenZIM)
+        webdriver
+            WebDrivers.Firefox Built-in Firefox WebDriver
+            WebDrivers.RemoteChrome Remote WebDriver for ChromeDriver on port 9515
     Returns:
         local_filename [str]
             Local filename of the downloaded ebook file
@@ -125,12 +133,19 @@ def create_a_book(article_urls, book_title, book_subtitle="", book_fmt="epub"):
     article_url = article_urls.pop(0)
     wiki = urlparse(article_url).netloc # e.g. "fr.wikipedia.org"
     logging.debug('wiki: {0}'.format(wiki))
-    driver = webdriver.Firefox()
+    driver = None
+    if webdriverType == WebDrivers.Firefox:
+        driver = webdriver.Firefox()
+    elif webdriverType == WebDrivers.RemoteChrome:
+        driver = webdriver.Remote(
+           command_executor='http://localhost:9515',
+           desired_capabilities=DesiredCapabilities.CHROME)
     driver.get(article_url)
-    h3 = driver.find_element_by_id("p-coll-print_export-label")
-    a = h3.find_element_by_tag_name("a") 
-    a.click() # cliquer "Imprimer / exporter"
-    driver.implicitly_wait(1)
+
+    #h3 = driver.find_element_by_id("p-coll-print_export-label")
+    #a = h3.find_element_by_tag_name("a") 
+    #a.click() # cliquer "Imprimer / exporter"
+    #driver.implicitly_wait(1)
     while True:
         try:
             div = driver.find_element_by_id("p-coll-print_export")
