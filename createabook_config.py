@@ -9,7 +9,7 @@ FROM_EMAIL = ''     # This email must be in your Amazon Kindle approved sender l
 SMTP_SERVER = '' # SMTP server for FROM_EMAIL account e.g. smtp.gmail.com:587
 SMTP_USERNAME = ''  # SMTP username for FROM_EMAIL account
 SMTP_PASSWORD = ''  # SMTP password for FROM_EMAIL account
-EXTERNALY_VISIBLE_SERVER = True
+EXTERNALLY_VISIBLE_SERVER = True
 #Credentials for HTTP Basic Auth
 HTTP_AUTH_LOGIN = 'admin'
 HTTP_AUTH_PASSWD = 'secret'

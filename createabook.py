@@ -55,7 +55,7 @@ app = Flask(__name__)
 logging.basicConfig(filename='createabook.log',level=logging.DEBUG)
 
 app.config.update(dict(
-    DEBUG=not EXTERNALY_VISIBLE_SERVER,
+    DEBUG=not EXTERNALLY_VISIBLE_SERVER,
     SECRET_KEY='development key',
     DEFAULT_KINDLE_EMAIL=DEFAULT_KINDLE_EMAIL,
     FORM_FIELD_FROM_EMAIL=not FROM_EMAIL,
@@ -296,7 +296,7 @@ def wiki_to_kindle(article_urls, book_title, book_subtitle, \
     
 if __name__ == '__main__':
     # Start the Flask server
-    if EXTERNALY_VISIBLE_SERVER:
+    if EXTERNALLY_VISIBLE_SERVER:
         app.run(host='0.0.0.0')
     else:
         app.run()
