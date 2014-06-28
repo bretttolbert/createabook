@@ -88,7 +88,7 @@ def wiki_to_kindle_handler():
     convert_to_mobi = 'convert_to_mobi' in request.form
     logging.debug('convert_to_mobi: {0}'.format(convert_to_mobi))
     
-    kindle_email = KINDLE_EMAIL
+    kindle_email = DEFAULT_KINDLE_EMAIL
     if 'kindle_email' in request.form:
         kindle_email = request.form['kindle_email']
         
