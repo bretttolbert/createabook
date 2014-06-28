@@ -15,7 +15,7 @@
     <dd><input type="checkbox" name="convert_to_mobi" checked="checked" value="{{ true }}"></input></dd>
     
     <dt>Destination Email Address (e.g. mykindle@amazon.com):</dt>
-    <dd><input type="text" size="30" name="kindle_email" /></dd>
+    <dd><input type="text" size="30" name="kindle_email" value="{{ default_kindle_email }}" /></dd>
     
     {% if form_field_from_email %}
     <dt>From Email:</dt>

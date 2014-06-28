@@ -24,22 +24,40 @@ from email.encoders import encode_base64
 from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash
 
+from functools import wraps
+from flask import request, Response
+
+from createabook_config import *
+
+def check_auth(username, password):
+    return username == HTTP_AUTH_LOGIN and password == HTTP_AUTH_PASSWD
+
+def authenticate():
+    """Sends a 401 response that enables basic auth"""
+    return Response(
+    'Could not verify your access level for that URL.\n'
+    'You have to login with proper credentials', 401,
+    {'WWW-Authenticate': 'Basic realm="Login Required"'})
+
+def requires_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if not auth or not check_auth(auth.username, auth.password):
+            return authenticate()
+        return f(*args, **kwargs)
+    return decorated
+
 class WebDrivers:
     Firefox, RemoteChrome = range(2)
     
 app = Flask(__name__)
 logging.basicConfig(filename='createabook.log',level=logging.DEBUG)
 
-KINDLE_EMAIL = ''   # Kindle email address (e.g. 'mykindle@amazon.com')
-FROM_EMAIL = ''     # This email must be in your Amazon Kindle approved sender list
-SMTP_SERVER = 'smtp.gmail.com:587' # SMTP server for FROM_EMAIL account
-SMTP_USERNAME = ''  # SMTP username for FROM_EMAIL account
-SMTP_PASSWORD = ''  # SMTP password for FROM_EMAIL account
-EXTERNALY_VISIBLE_SERVER = False
-
 app.config.update(dict(
     DEBUG=not EXTERNALY_VISIBLE_SERVER,
     SECRET_KEY='development key',
+    DEFAULT_KINDLE_EMAIL=DEFAULT_KINDLE_EMAIL,
     FORM_FIELD_FROM_EMAIL=not FROM_EMAIL,
     FORM_FIELD_SMTP_SERVER=not SMTP_SERVER,
     FORM_FIELD_SMTP_USERNAME=not SMTP_USERNAME,
@@ -48,10 +66,12 @@ app.config.update(dict(
 app.config.from_envvar('FLASKR_SETTINGS', silent=True)
 
 @app.route("/")
+@requires_auth
 def wiki_to_kindle_form():
     """Form for wiki_to_kindle
     """
     return render_template('wiki_to_kindle_form.html', \
+        default_kindle_email = app.config['DEFAULT_KINDLE_EMAIL'], \
         form_field_from_email = app.config['FORM_FIELD_FROM_EMAIL'], \
         form_field_smtp_server = app.config['FORM_FIELD_SMTP_SERVER'], \
         form_field_smtp_username = app.config['FORM_FIELD_SMTP_USERNAME'], \
