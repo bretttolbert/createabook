@@ -118,6 +118,24 @@ def wiki_to_kindle_handler():
     flash('Done.')
     return redirect(url_for('wiki_to_kindle_form'))
 
+def get_wiki_url(driver, article_url):
+    """If a mobile wikipedia URL is given, clicks through to the desktop version.
+    Returns article_url, wiki
+    E.g. normalize_url('http://fr.m.wikipedia.org/wiki/Philosophie') =>
+    'http://fr.wikipedia.org/w/index.php?title=Philosophie', 'fr.wikipedia.org'
+    """
+    driver.get(article_url)
+    #check for mobile wikipedia
+    if article_url.find('m.wikipedia.org') != -1:
+        #click desktop version link
+        a = driver.find_element_by_id("mw-mf-display-toggle")
+        a.click()
+        driver.implicitly_wait(1)
+    article_url = driver.current_url
+    wiki = urlparse(article_url).netloc # e.g. "fr.wikipedia.org"
+    logging.debug('wiki: {0}'.format(wiki))
+    return article_url, wiki
+    
 def create_a_book(article_urls, book_title, book_subtitle="", book_fmt="epub", \
     webdriverType=WebDrivers.Firefox):
     """Create and download and ebook version of the specified WikiMedia article
@@ -151,8 +169,6 @@ def create_a_book(article_urls, book_title, book_subtitle="", book_fmt="epub", \
         logging.error('create_a_book: article_urls is empty, nothing to do')
         return
     article_url = article_urls.pop(0)
-    wiki = urlparse(article_url).netloc # e.g. "fr.wikipedia.org"
-    logging.debug('wiki: {0}'.format(wiki))
     driver = None
     if webdriverType == WebDrivers.Firefox:
         driver = webdriver.Firefox()
@@ -160,7 +176,8 @@ def create_a_book(article_urls, book_title, book_subtitle="", book_fmt="epub", \
         driver = webdriver.Remote(
            command_executor='http://localhost:9515',
            desired_capabilities=DesiredCapabilities.CHROME)
-    driver.get(article_url)
+
+    article_url, wiki = get_wiki_url(driver, article_url)
 
     #h3 = driver.find_element_by_id("p-coll-print_export-label")
     #a = h3.find_element_by_tag_name("a") 
@@ -188,7 +205,7 @@ def create_a_book(article_urls, book_title, book_subtitle="", book_fmt="epub", \
     # Add the rest of the articles to the book
     while len(article_urls):
         article_url = article_urls.pop(0)
-        driver.get(article_url)
+        article_url, wiki = get_wiki_url(driver, article_url)
         a = driver.find_element_by_id("coll-add_article")
         a.click() # cliquer "Ajouter cette page à votre livre"
 
